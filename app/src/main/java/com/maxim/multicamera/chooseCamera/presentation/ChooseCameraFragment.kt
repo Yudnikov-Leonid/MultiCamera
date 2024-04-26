@@ -23,16 +23,22 @@ class ChooseCameraFragment : BaseFragment<ChooseCameraViewModel, FragmentChooseC
         viewModel.init(savedInstanceState == null)
     }
 
+    override fun clear() {
+        binding.buttonLayout.removeAllViews()
+    }
+
     override fun addButton(name: String) {
         val button = Button(requireContext())
         button.text = name
+        val index = binding.buttonLayout.childCount
         button.setOnClickListener {
-            viewModel.choose(binding.buttonLayout.childCount)
+            viewModel.choose(index)
         }
         binding.buttonLayout.addView(button)
     }
 }
 
 interface AddButton {
+    fun clear()
     fun addButton(name: String)
 }
