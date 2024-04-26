@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureFailure
@@ -17,6 +18,10 @@ import android.hardware.camera2.params.SessionConfiguration
 import android.os.Bundle
 import android.util.Log
 import android.view.Surface
+import android.view.View
+import android.widget.Button
+import android.widget.RadioButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.maxim.multicamera.databinding.ActivityMainBinding
@@ -42,10 +47,23 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
+        myCameras.forEach { camera ->
+            val button = Button(this).apply {
+                val isFront = cameraManager!!.getCameraCharacteristics(camera.cameraId)
+                    .get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+                val t = "${camera.cameraId} (${if (isFront) "FRONT" else "BACK"})"
+                text = t
+            }
+            binding.buttonsLayout.addView(button)
+            button.setOnClickListener {
+                camera.open()
+            }
+        }
+
 //        myCameras.forEach {
 //            it.open()
 //        }
-        myCameras[0].open()
+        // myCameras[0].open()
     }
 
     override fun onResume() {
@@ -71,16 +89,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     inner class CameraService(
-        private val cameraId: String,
+        val cameraId: String,
         private val cameraManager: CameraManager
     ) {
         private var cameraDevice: CameraDevice? = null
         private var captureSession: CameraCaptureSession? = null
+
+        private var physicalCameras = Pair("", "")
+
         private val cameraCallback = object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 cameraDevice = camera
                 //createCameraPreviewSession(cameraId)
-                startPhysicalCameras(cameraManager.getCameraCharacteristics(cameraId).physicalCameraIds.toList())
+                //startPhysicalCameras(cameraManager.getCameraCharacteristics(cameraId).physicalCameraIds.toList())
+                binding.buttonsLayout.addView(Button(this@MainActivity).apply {
+                    text = "Start"
+                    setOnClickListener {
+                        startPhysicalCameras(listOf(physicalCameras.first, physicalCameras.second))
+                        binding.buttonsLayout.removeAllViews()
+                    }
+                })
+                binding.buttonsLayout.visibility = View.GONE
+                cameraManager.getCameraCharacteristics(cameraId).physicalCameraIds.forEach {
+                    val buttonOne = RadioButton(this@MainActivity).apply {
+                        text = it
+                        setOnClickListener { _ ->
+                            physicalCameras = Pair(it, physicalCameras.second)
+                            if (physicalCameras.first.isNotEmpty() && physicalCameras.second.isNotEmpty() && physicalCameras.first != physicalCameras.second)
+                                binding.buttonsLayout.visibility = View.VISIBLE
+                            else binding.buttonsLayout.visibility = View.GONE
+                        }
+                    }
+                    val buttonTwo = RadioButton(this@MainActivity).apply {
+                        text = it
+                        id = it.toInt()
+                        setOnClickListener { _ ->
+                            physicalCameras = Pair(physicalCameras.first, it)
+                            if (physicalCameras.first.isNotEmpty() && physicalCameras.second.isNotEmpty() && physicalCameras.first != physicalCameras.second)
+                                binding.buttonsLayout.visibility = View.VISIBLE
+                            else binding.buttonsLayout.visibility = View.GONE
+                        }
+                    }
+                    binding.physicalButtonGroupOne.addView(buttonOne)
+                    binding.physicalButtonGroupTwo.addView(buttonTwo)
+                }
                 Log.d("MyLog", "opened: $cameraId")
             }
 
@@ -97,7 +149,15 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("MissingPermission")
         fun open() {
             try {
-                cameraManager.openCamera(cameraId, cameraCallback, null)
+                val physicalCameras =
+                    cameraManager.getCameraCharacteristics(cameraId).physicalCameraIds
+                if (physicalCameras.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "No physical cameras", Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    cameraManager.openCamera(cameraId, cameraCallback, null)
+                    binding.buttonsLayout.removeAllViews()
+                }
             } catch (e: CameraAccessException) {
                 e.printStackTrace()
             }
@@ -115,10 +175,13 @@ class MainActivity : AppCompatActivity() {
             configTwo.setPhysicalCameraId(ids[1])
 
             sessionConfig = SessionConfiguration(SessionConfiguration.SESSION_REGULAR,
-                listOf(configOne, configTwo), mainExecutor, object : CameraCaptureSession.StateCallback() {
+                listOf(configOne, configTwo),
+                mainExecutor,
+                object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
                         Log.d("MyLog", "onConfigured")
-                        val captureRequest = session.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                        val captureRequest =
+                            session.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
 
                         captureRequest.addTarget(surfaceOne)
                         captureRequest.addTarget(surfaceTwo)
