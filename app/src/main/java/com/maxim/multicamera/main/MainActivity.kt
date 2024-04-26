@@ -1,4 +1,4 @@
-package com.maxim.multicamera
+package com.maxim.multicamera.main
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -24,9 +24,12 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+import com.maxim.multicamera.core.App
+import com.maxim.multicamera.core.sl.ProvideViewModel
 import com.maxim.multicamera.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ProvideViewModel {
     private lateinit var binding: ActivityMainBinding
 
     private val myCameras = mutableListOf<CameraService>()
@@ -252,5 +255,9 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
+    }
+
+    override fun <T : ViewModel> viewModel(clasz: Class<T>): T {
+        return (application as App).viewModel(clasz)
     }
 }
