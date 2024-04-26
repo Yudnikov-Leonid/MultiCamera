@@ -6,9 +6,14 @@ import androidx.lifecycle.ViewModel
 import com.maxim.multicamera.core.CameraManagerWrapper
 import com.maxim.multicamera.core.presentation.Communication
 import com.maxim.multicamera.core.presentation.Init
+import com.maxim.multicamera.core.presentation.Navigation
+import com.maxim.multicamera.multiCamera.data.ShareCameraId
+import com.maxim.multicamera.multiCamera.presentation.MultiCameraScreen
 
 class ChooseCameraViewModel(
     private val communication: ChooseCameraCommunication,
+    private val shareCameraId: ShareCameraId.Update,
+    private val navigation: Navigation.Update,
     private val cameraManagerWrapper: CameraManagerWrapper
 ) : ViewModel(), Communication.Observe<ChooseCameraState>, Init {
     private val cameraNames = mutableListOf<String>()
@@ -28,6 +33,8 @@ class ChooseCameraViewModel(
             communication.update(ChooseCameraState.Base(cameraNames, "Camera does not have supported physical cameras"))
         else {
             communication.update(ChooseCameraState.Initial(cameraNames))
+            shareCameraId.save(cameraManagerWrapper.cameras()[index])
+            navigation.update(MultiCameraScreen)
         }
     }
 

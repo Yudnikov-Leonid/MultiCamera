@@ -5,6 +5,8 @@ import com.maxim.multicamera.chooseCamera.ChooseCameraModule
 import com.maxim.multicamera.chooseCamera.presentation.ChooseCameraViewModel
 import com.maxim.multicamera.main.MainModule
 import com.maxim.multicamera.main.MainViewModel
+import com.maxim.multicamera.multiCamera.MultiCameraModule
+import com.maxim.multicamera.multiCamera.presentation.MultiCameraViewModel
 
 interface DependencyContainer {
     fun <T: ViewModel> module(clasz: Class<out T>): Module<T>
@@ -21,6 +23,7 @@ interface DependencyContainer {
             return when(clasz) {
                 MainViewModel::class.java -> MainModule(core)
                 ChooseCameraViewModel::class.java -> ChooseCameraModule(core)
+                MultiCameraViewModel::class.java -> MultiCameraModule(core, clear)
                 else -> next.module(clasz)
             } as Module<T>
         }

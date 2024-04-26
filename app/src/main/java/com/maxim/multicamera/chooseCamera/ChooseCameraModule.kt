@@ -7,5 +7,10 @@ import com.maxim.multicamera.core.sl.Module
 
 class ChooseCameraModule(private val core: Core) : Module<ChooseCameraViewModel> {
     override fun viewModel() =
-        ChooseCameraViewModel(ChooseCameraCommunication.Base(), core.camaraManagerWrapper())
+        ChooseCameraViewModel(
+            ChooseCameraCommunication.Base(),
+            core.shareCameraId(),
+            core.navigation(),
+            core.camaraManagerWrapper(),
+        )
 }
