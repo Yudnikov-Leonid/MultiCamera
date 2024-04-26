@@ -6,8 +6,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureFailure
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
 import android.os.Bundle
 import android.util.Log
 import android.view.Surface
@@ -36,10 +42,10 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
-        myCameras.forEach {
-            it.open()
-        }
-        //myCameras[0].open()
+//        myCameras.forEach {
+//            it.open()
+//        }
+        myCameras[0].open()
     }
 
     override fun onResume() {
@@ -64,13 +70,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class CameraService(private val cameraId: String, private val cameraManager: CameraManager) {
+    inner class CameraService(
+        private val cameraId: String,
+        private val cameraManager: CameraManager
+    ) {
         private var cameraDevice: CameraDevice? = null
         private var captureSession: CameraCaptureSession? = null
         private val cameraCallback = object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 cameraDevice = camera
-                createCameraPreviewSession(cameraId)
+                //createCameraPreviewSession(cameraId)
+                startPhysicalCameras(cameraManager.getCameraCharacteristics(cameraId).physicalCameraIds.toList())
                 Log.d("MyLog", "opened: $cameraId")
             }
 
@@ -93,6 +103,55 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+        private lateinit var sessionConfig: SessionConfiguration
+        fun startPhysicalCameras(ids: List<String>) {
+            val surfaceOne = Surface(binding.textureViewOne.surfaceTexture)
+            val configOne = OutputConfiguration(surfaceOne)
+            configOne.setPhysicalCameraId(ids[0])
+
+            val surfaceTwo = Surface(binding.textureViewTwo.surfaceTexture)
+            val configTwo = OutputConfiguration(surfaceTwo)
+            configTwo.setPhysicalCameraId(ids[1])
+
+            sessionConfig = SessionConfiguration(SessionConfiguration.SESSION_REGULAR,
+                listOf(configOne, configTwo), mainExecutor, object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigured(session: CameraCaptureSession) {
+                        Log.d("MyLog", "onConfigured")
+                        val captureRequest = session.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+
+                        captureRequest.addTarget(surfaceOne)
+                        captureRequest.addTarget(surfaceTwo)
+
+                        session.capture(captureRequest.build(), object : CaptureCallback() {
+                            override fun onCaptureCompleted(
+                                session: CameraCaptureSession,
+                                request: CaptureRequest,
+                                result: TotalCaptureResult
+                            ) {
+                                super.onCaptureCompleted(session, request, result)
+                                Log.d("MyLog", "onCaptureCompleted")
+                            }
+
+                            override fun onCaptureFailed(
+                                session: CameraCaptureSession,
+                                request: CaptureRequest,
+                                failure: CaptureFailure
+                            ) {
+                                super.onCaptureFailed(session, request, failure)
+                                Log.d("MyLog", "onCaptureFailed: ${failure.reason}")
+                            }
+                        }, null)
+                    }
+
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        Log.d("MyLog", "onConfigureFailed")
+                    }
+                })
+
+            cameraDevice!!.createCaptureSession(sessionConfig)
+        }
+
         fun close() {
             cameraDevice?.let {
                 it.close()
@@ -103,24 +162,29 @@ class MainActivity : AppCompatActivity() {
         fun isOpen() = cameraDevice != null
 
         private fun createCameraPreviewSession(cameraId: String) {
-            val texture = if (cameraId == "0") binding.textureViewOne.surfaceTexture else binding.textureViewTwo.surfaceTexture
+            val texture =
+                if (cameraId == "0") binding.textureViewOne.surfaceTexture else binding.textureViewTwo.surfaceTexture
             val surface = Surface(texture)
 
             try {
                 val builder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
                 builder.addTarget(surface)
-                cameraDevice!!.createCaptureSession(listOf(surface), object : CameraCaptureSession.StateCallback() {
-                    override fun onConfigured(session: CameraCaptureSession) {
-                        captureSession = session
-                        try {
-                            captureSession!!.setRepeatingRequest(builder.build(), null, null)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                cameraDevice!!.createCaptureSession(
+                    listOf(surface),
+                    object : CameraCaptureSession.StateCallback() {
+                        override fun onConfigured(session: CameraCaptureSession) {
+                            captureSession = session
+                            try {
+                                captureSession!!.setRepeatingRequest(builder.build(), null, null)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                         }
-                    }
 
-                    override fun onConfigureFailed(session: CameraCaptureSession) = Unit
-                }, null)
+                        override fun onConfigureFailed(session: CameraCaptureSession) = Unit
+                    },
+                    null
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
