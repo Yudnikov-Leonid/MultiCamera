@@ -25,6 +25,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.maxim.multicamera.R
 import com.maxim.multicamera.core.App
 import com.maxim.multicamera.core.sl.ProvideViewModel
 import com.maxim.multicamera.databinding.ActivityMainBinding
@@ -40,33 +41,35 @@ class MainActivity : AppCompatActivity(), ProvideViewModel {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        try {
-            myCameras.clear()
-            myCameras.addAll(cameraManager!!.cameraIdList.map {
-                CameraService(it, cameraManager!!)
-            })
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val viewModel = viewModel(MainViewModel::class.java)
+        viewModel.observe(this) {
+            it.show(supportFragmentManager, R.id.container)
         }
 
-        myCameras.forEach { camera ->
-            val button = Button(this).apply {
-                val isFront = cameraManager!!.getCameraCharacteristics(camera.cameraId)
-                    .get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
-                val t = "${camera.cameraId} (${if (isFront) "FRONT" else "BACK"})"
-                text = t
-            }
-            binding.buttonsLayout.addView(button)
-            button.setOnClickListener {
-                camera.open()
-            }
-        }
+        viewModel.init(savedInstanceState == null)
 
-//        myCameras.forEach {
-//            it.open()
+//        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+//        try {
+//            myCameras.clear()
+//            myCameras.addAll(cameraManager!!.cameraIdList.map {
+//                CameraService(it, cameraManager!!)
+//            })
+//        } catch (e: Exception) {
+//            e.printStackTrace()
 //        }
-        // myCameras[0].open()
+//
+//        myCameras.forEach { camera ->
+//            val button = Button(this).apply {
+//                val isFront = cameraManager!!.getCameraCharacteristics(camera.cameraId)
+//                    .get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+//                val t = "${camera.cameraId} (${if (isFront) "FRONT" else "BACK"})"
+//                text = t
+//            }
+//            binding.buttonsLayout.addView(button)
+//            button.setOnClickListener {
+//                camera.open()
+//            }
+//        }
     }
 
     override fun onResume() {
