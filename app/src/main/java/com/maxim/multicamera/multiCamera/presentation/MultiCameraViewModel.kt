@@ -22,10 +22,10 @@ class MultiCameraViewModel(
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
             communication.update(
-                MultiCameraState.Base(
+                MultiCameraState.Initial(
                     cameraManagerWrapper.physicalCameras(
                         shareCameraId.read()
-                    ), false
+                    )
                 )
             )
         }
@@ -39,9 +39,6 @@ class MultiCameraViewModel(
         cameras = if (pos == 0) Pair(name, cameras.second) else Pair(cameras.first, name)
         communication.update(
             MultiCameraState.Base(
-                cameraManagerWrapper.physicalCameras(
-                    shareCameraId.read()
-                ),
                 cameras.first.isNotEmpty() && cameras.second.isNotEmpty() && cameras.first != cameras.second
             )
         )
