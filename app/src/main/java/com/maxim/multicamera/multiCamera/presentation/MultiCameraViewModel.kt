@@ -13,7 +13,7 @@ import com.maxim.multicamera.multiCamera.data.ShareCameraId
 
 class MultiCameraViewModel(
     private val communication: MultiCameraCommunication,
-    private val shareCameraId: ShareCameraId.Read,
+    private val shareCameraId: ShareCameraId.Mutable,
     private val cameraManagerWrapper: CameraManagerWrapper,
     private val navigation: Navigation.Update,
     private val clearViewModel: ClearViewModel
@@ -25,7 +25,7 @@ class MultiCameraViewModel(
             communication.update(
                 MultiCameraState.Initial(
                     cameraManagerWrapper.physicalCameras(
-                        shareCameraId.read()
+                        shareCameraId.readLogical()
                     )
                 )
             )
@@ -33,6 +33,7 @@ class MultiCameraViewModel(
     }
 
     fun start() {
+        shareCameraId.savePhysical(cameras)
         navigation.update(CameraScreen)
     }
 

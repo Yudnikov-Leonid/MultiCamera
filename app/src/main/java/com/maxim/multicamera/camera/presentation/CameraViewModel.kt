@@ -14,13 +14,11 @@ class CameraViewModel(
 
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
-            communication.update(CameraState.Base(shareCameraId.read()))
+            communication.update(CameraState.Base(shareCameraId.readLogical()))
         }
     }
 
-    fun physicalsIds(): Pair<String, String> {
-        return Pair("12", "13")
-    }
+    fun physicalsIds() = shareCameraId.readPhysical()
 
     override fun observe(owner: LifecycleOwner, observer: Observer<CameraState>) {
         communication.observe(owner, observer)

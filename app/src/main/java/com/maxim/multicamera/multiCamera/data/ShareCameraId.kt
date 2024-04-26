@@ -2,22 +2,30 @@ package com.maxim.multicamera.multiCamera.data
 
 interface ShareCameraId {
     interface Update {
-        fun save(id: String)
+        fun saveLogical(id: String)
+        fun savePhysical(ids: Pair<String, String>)
     }
 
     interface Read {
-        fun read(): String
+        fun readLogical(): String
+        fun readPhysical(): Pair<String, String>
     }
 
     interface Mutable: Update, Read
 
-    class Base(): Mutable {
+    class Base: Mutable {
         private var id = ""
+        private var physical = Pair("", "")
 
-        override fun save(id: String) {
+        override fun saveLogical(id: String) {
             this.id = id
         }
 
-        override fun read() = id
+        override fun savePhysical(ids: Pair<String, String>) {
+            physical = ids
+        }
+
+        override fun readLogical() = id
+        override fun readPhysical() = physical
     }
 }

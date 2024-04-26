@@ -33,7 +33,7 @@ class ChooseCameraViewModel(
             communication.update(ChooseCameraState.Base(cameraNames, "Camera does not have supported physical cameras"))
         else {
             communication.update(ChooseCameraState.Initial(cameraNames))
-            shareCameraId.save(cameraManagerWrapper.cameras()[index])
+            shareCameraId.saveLogical(cameraManagerWrapper.cameras()[index])
             navigation.update(MultiCameraScreen)
         }
     }
