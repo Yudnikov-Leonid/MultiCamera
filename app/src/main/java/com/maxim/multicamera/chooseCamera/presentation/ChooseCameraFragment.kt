@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import com.maxim.multicamera.core.presentation.BaseFragment
+import com.maxim.multicamera.core.presentation.BundleWrapper
 import com.maxim.multicamera.databinding.FragmentChooseCameraBinding
 
 class ChooseCameraFragment : BaseFragment<ChooseCameraViewModel, FragmentChooseCameraBinding>(),
@@ -34,6 +35,16 @@ class ChooseCameraFragment : BaseFragment<ChooseCameraViewModel, FragmentChooseC
             }
             binding.buttonLayout.addView(button)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.save(BundleWrapper.Base(outState))
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.let { viewModel.restore(BundleWrapper.Base(it)) }
     }
 }
 

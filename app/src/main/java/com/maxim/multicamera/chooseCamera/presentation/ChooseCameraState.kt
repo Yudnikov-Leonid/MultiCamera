@@ -2,8 +2,9 @@ package com.maxim.multicamera.chooseCamera.presentation
 
 import android.view.View
 import android.widget.TextView
+import java.io.Serializable
 
-interface ChooseCameraState {
+interface ChooseCameraState: Serializable {
     fun show(addButton: AddButton, failTextView: TextView)
 
     class Initial(private val camerasNames: List<String>): ChooseCameraState {

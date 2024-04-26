@@ -3,6 +3,7 @@ package com.maxim.multicamera.core.presentation
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import java.io.Serializable
 
 interface Communication {
     interface Update<T> {
@@ -13,14 +14,21 @@ interface Communication {
         fun observe(owner: LifecycleOwner, observer: Observer<T>)
     }
 
-    interface ObserveForever<T> {
-        fun observe(observer: Observer<T>)
-        fun stopObserve(observer: Observer<T>)
+    interface Save {
+        fun save(key: String, bundleWrapper: BundleWrapper.Save)
     }
 
-    interface Mutable<T>: Update<T>, Observe<T>
+    interface Restore {
+        fun restore(key: String, bundleWrapper: BundleWrapper.Restore)
+    }
 
-    abstract class Abstract<T>(protected val liveData: MutableLiveData<T>): Mutable<T> {
+    interface Mutable<T> : Update<T>, Observe<T>
+
+    interface All<T : Serializable> : Mutable<T>, Save, Restore
+
+    abstract class Abstract<T>(
+        protected val liveData: MutableLiveData<T> = MutableLiveData()
+    ) : Mutable<T> {
         override fun update(value: T) {
             liveData.value = value
         }
@@ -30,24 +38,23 @@ interface Communication {
         }
     }
 
-    abstract class AbstractForever<T>(protected val liveData: MutableLiveData<T>): Update<T>,
-        ObserveForever<T> {
-        override fun update(value: T) {
-            liveData.value = value
+    abstract class AbstractDeath<T : Serializable>(
+        liveDataInner: MutableLiveData<T> = MutableLiveData()
+    ) : Abstract<T>(liveDataInner), All<T> {
+        override fun save(key: String, bundleWrapper: BundleWrapper.Save) {
+            liveData.value?.let {
+                bundleWrapper.save(key, it)
+            }
         }
 
-        override fun observe(observer: Observer<T>) {
-            liveData.observeForever(observer)
-        }
-
-        override fun stopObserve(observer: Observer<T>) {
-            liveData.removeObserver(observer)
+        override fun restore(key: String, bundleWrapper: BundleWrapper.Restore) {
+            liveData.value = bundleWrapper.restore(key)
         }
     }
 
-    abstract class Single<T>: Abstract<T>(SingleLiveEvent())
-    abstract class Regular<T>: Abstract<T>(MutableLiveData())
+    abstract class Regular<T> : Abstract<T>()
+    abstract class Single<T> : Abstract<T>(SingleLiveEvent())
 
-    abstract class SingleForever<T>: AbstractForever<T>(SingleLiveEvent())
-    abstract class RegularForever<T>: AbstractForever<T>(MutableLiveData())
+    abstract class RegularWithDeath<T : Serializable> : AbstractDeath<T>()
+    abstract class SingleWithDeath<T : Serializable> : AbstractDeath<T>(SingleLiveEvent())
 }

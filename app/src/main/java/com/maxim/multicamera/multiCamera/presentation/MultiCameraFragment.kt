@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.activity.OnBackPressedCallback
 import com.maxim.multicamera.core.presentation.BaseFragment
+import com.maxim.multicamera.core.presentation.BundleWrapper
 import com.maxim.multicamera.databinding.FragmentMultiCameraBinding
 
 class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCameraBinding>(),
@@ -55,6 +56,16 @@ class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCame
             binding.physicalButtonGroupOne.addView(buttonOne)
             binding.physicalButtonGroupTwo.addView(buttonTwo)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        viewModel.save(BundleWrapper.Base(outState))
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.let { viewModel.restore(BundleWrapper.Base(it)) }
     }
 }
 

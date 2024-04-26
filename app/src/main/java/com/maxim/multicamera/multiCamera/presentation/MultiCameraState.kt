@@ -1,8 +1,9 @@
 package com.maxim.multicamera.multiCamera.presentation
 
 import android.widget.Button
+import java.io.Serializable
 
-interface MultiCameraState {
+interface MultiCameraState: Serializable {
 
     fun show(addButton: MakeRadioButtons, startButton: Button)
 
