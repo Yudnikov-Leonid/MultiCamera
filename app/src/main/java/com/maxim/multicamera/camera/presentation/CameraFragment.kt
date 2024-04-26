@@ -5,9 +5,6 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureFailure
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Bundle
@@ -126,29 +123,7 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
                     captureRequest.addTarget(surfaceOne)
                     captureRequest.addTarget(surfaceTwo)
 
-                    session.capture(
-                        captureRequest.build(),
-                        object : CameraCaptureSession.CaptureCallback() {
-                            override fun onCaptureCompleted(
-                                session: CameraCaptureSession,
-                                request: CaptureRequest,
-                                result: TotalCaptureResult
-                            ) {
-                                super.onCaptureCompleted(session, request, result)
-                                Log.d("MyLog", "onCaptureCompleted")
-                            }
-
-                            override fun onCaptureFailed(
-                                session: CameraCaptureSession,
-                                request: CaptureRequest,
-                                failure: CaptureFailure
-                            ) {
-                                super.onCaptureFailed(session, request, failure)
-                                Log.d("MyLog", "onCaptureFailed: ${failure.reason}")
-                            }
-                        },
-                        null
-                    )
+                    session.setRepeatingRequest(captureRequest.build(), null, null)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
