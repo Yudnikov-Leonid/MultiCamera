@@ -18,7 +18,11 @@ class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCame
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.observe(this) {
-            it.show(this)
+            it.show(this, binding.startButton)
+        }
+
+        binding.startButton.setOnClickListener {
+            viewModel.start()
         }
 
         viewModel.init(savedInstanceState == null)
@@ -32,8 +36,14 @@ class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCame
     override fun addButton(name: String) {
         val buttonOne = RadioButton(requireContext())
         buttonOne.text = name
+        buttonOne.setOnClickListener {
+            viewModel.choose(0, name)
+        }
         val buttonTwo = RadioButton(requireContext())
         buttonTwo.text = name
+        buttonTwo.setOnClickListener {
+            viewModel.choose(1, name)
+        }
 
         binding.physicalButtonGroupOne.addView(buttonOne)
         binding.physicalButtonGroupTwo.addView(buttonTwo)

@@ -75,23 +75,23 @@ class MainActivity : AppCompatActivity(), ProvideViewModel {
     override fun onResume() {
         super.onResume()
 
-        val permissionList = mutableListOf<String>()
-        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permissionList.add(Manifest.permission.CAMERA)
-        }
-        if (ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-
-        if (permissionList.isNotEmpty()) {
-            requestPermissions(
-                permissionList.toTypedArray(), 1
-            )
-        }
+//        val permissionList = mutableListOf<String>()
+//        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//            permissionList.add(Manifest.permission.CAMERA)
+//        }
+//        if (ContextCompat.checkSelfPermission(
+//                applicationContext,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//        }
+//
+//        if (permissionList.isNotEmpty()) {
+//            requestPermissions(
+//                permissionList.toTypedArray(), 1
+//            )
+//        }
     }
 
 //    inner class CameraService(
