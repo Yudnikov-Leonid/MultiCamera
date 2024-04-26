@@ -5,7 +5,7 @@ interface CameraState {
 
     class Base(private val cameraId: String) : CameraState {
         override fun show(cameraController: CameraController) {
-            cameraController.openLogical(cameraId)
+
         }
     }
 }

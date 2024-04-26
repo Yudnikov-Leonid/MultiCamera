@@ -28,6 +28,8 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
     private var backgroundThread: HandlerThread? = null
     private var handler: Handler? = null
 
+    private lateinit var camera: CameraService
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -36,29 +38,25 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
         viewModel.observe(this) {
             it.show(this)
         }
-
-        viewModel.init(savedInstanceState == null)
     }
 
     override fun onResume() {
         super.onResume()
         if (backgroundThread == null)
             createBackgroundThread()
+        camera = CameraService.Base(viewModel.logicalId(), cameraManager, this)
+        if (handler == null)
+            createBackgroundThread()
+        camera.openCamera(handler!!)
     }
 
     override fun onPause() {
         super.onPause()
+        camera.closeCamera()
         backgroundThread!!.quitSafely()
         backgroundThread!!.join()
         backgroundThread = null
         handler = null
-    }
-
-    override fun openLogical(id: String) {
-        val camera = CameraService.Base(id, cameraManager, this)
-        if (handler == null)
-            createBackgroundThread()
-        camera.openCamera(handler!!)
     }
 
     private fun createBackgroundThread() {
@@ -136,6 +134,5 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
 }
 
 interface CameraController {
-    fun openLogical(id: String)
     fun startPhysicalCameras(cameraDevice: CameraDevice)
 }
