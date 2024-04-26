@@ -3,6 +3,7 @@ package com.maxim.multicamera.multiCamera.presentation
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import com.maxim.multicamera.camera.presentation.CameraScreen
 import com.maxim.multicamera.core.CameraManagerWrapper
 import com.maxim.multicamera.core.presentation.Communication
 import com.maxim.multicamera.core.presentation.Init
@@ -32,7 +33,7 @@ class MultiCameraViewModel(
     }
 
     fun start() {
-
+        navigation.update(CameraScreen)
     }
 
     fun choose(pos: Int, name: String) {
