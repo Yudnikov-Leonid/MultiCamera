@@ -1,5 +1,6 @@
 package com.maxim.multicamera.core.presentation
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
@@ -9,7 +10,9 @@ interface Screen {
     abstract class Add(private val fragmentClass: Class<out Fragment>) : Screen {
         override fun show(fragmentManager: FragmentManager, containerId: Int) {
             fragmentManager.beginTransaction()
-                .add(containerId, fragmentClass.getDeclaredConstructor().newInstance()).commit()
+                .add(containerId, fragmentClass.getDeclaredConstructor().newInstance())
+                .addToBackStack(fragmentClass.simpleName)
+                .commit()
         }
     }
 
@@ -22,6 +25,7 @@ interface Screen {
 
     object Pop: Screen {
         override fun show(fragmentManager: FragmentManager, containerId: Int) {
+            Log.d("MyLog", "count: ${fragmentManager.backStackEntryCount}")
             fragmentManager.popBackStack()
         }
     }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.activity.OnBackPressedCallback
 import com.maxim.multicamera.chooseCamera.presentation.AddButton
 import com.maxim.multicamera.core.presentation.BaseFragment
 import com.maxim.multicamera.databinding.FragmentMultiCameraBinding
@@ -15,6 +16,11 @@ class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCame
         FragmentMultiCameraBinding.inflate(inflater, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                viewModel.goBack()
+            }
+        }
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.observe(this) {

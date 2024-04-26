@@ -6,8 +6,10 @@ import androidx.lifecycle.ViewModel
 import com.maxim.multicamera.camera.presentation.CameraScreen
 import com.maxim.multicamera.core.CameraManagerWrapper
 import com.maxim.multicamera.core.presentation.Communication
+import com.maxim.multicamera.core.presentation.GoBack
 import com.maxim.multicamera.core.presentation.Init
 import com.maxim.multicamera.core.presentation.Navigation
+import com.maxim.multicamera.core.presentation.Screen
 import com.maxim.multicamera.core.sl.ClearViewModel
 import com.maxim.multicamera.multiCamera.data.ShareCameraId
 
@@ -17,7 +19,7 @@ class MultiCameraViewModel(
     private val cameraManagerWrapper: CameraManagerWrapper,
     private val navigation: Navigation.Update,
     private val clearViewModel: ClearViewModel
-) : ViewModel(), Communication.Observe<MultiCameraState>, Init {
+) : ViewModel(), Communication.Observe<MultiCameraState>, Init, GoBack {
     private var cameras = Pair("", "")
 
     override fun init(isFirstRun: Boolean) {
@@ -48,5 +50,10 @@ class MultiCameraViewModel(
 
     override fun observe(owner: LifecycleOwner, observer: Observer<MultiCameraState>) {
         communication.observe(owner, observer)
+    }
+
+    override fun goBack() {
+        navigation.update(Screen.Pop)
+        clearViewModel.clear(MultiCameraViewModel::class.java)
     }
 }

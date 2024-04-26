@@ -16,6 +16,7 @@ import android.view.Surface
 import android.view.TextureView.SurfaceTextureListener
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import com.maxim.multicamera.core.presentation.BaseFragment
 import com.maxim.multicamera.databinding.FragmentCameraBinding
 
@@ -27,17 +28,21 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
     private lateinit var cameraManager: CameraManager
     private var backgroundThread: HandlerThread? = null
     private var handler: Handler? = null
+    private var previewSession: CameraCaptureSession? = null
 
     private lateinit var camera: CameraService
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                //previewSession?.stopRepeating()
+                //previewSession = null
+                viewModel.goBack()
+            }
+        }
         super.onViewCreated(view, savedInstanceState)
 
         cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-        viewModel.observe(this) {
-            it.show(this)
-        }
     }
 
     override fun onResume() {
@@ -51,18 +56,23 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
     }
 
     override fun onPause() {
+        Log.d("MyLog", "onPause")
         super.onPause()
         camera.closeCamera()
-        backgroundThread!!.quitSafely()
-        backgroundThread!!.join()
-        backgroundThread = null
-        handler = null
+        stopBackgroundThread()
     }
 
     private fun createBackgroundThread() {
         backgroundThread = HandlerThread("camera-background")
         backgroundThread!!.start()
         handler = Handler(backgroundThread!!.looper)
+    }
+
+    private fun stopBackgroundThread() {
+        backgroundThread!!.quitSafely()
+        backgroundThread!!.join()
+        backgroundThread = null
+        handler = null
     }
 
     private lateinit var sessionConfig: SessionConfiguration
@@ -121,6 +131,7 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
                     captureRequest.addTarget(surfaceOne)
                     captureRequest.addTarget(surfaceTwo)
 
+                    previewSession = session
                     session.setRepeatingRequest(captureRequest.build(), null, null)
                 }
 
