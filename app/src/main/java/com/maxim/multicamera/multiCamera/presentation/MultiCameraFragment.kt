@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.activity.OnBackPressedCallback
-import com.maxim.multicamera.chooseCamera.presentation.AddButton
 import com.maxim.multicamera.core.presentation.BaseFragment
 import com.maxim.multicamera.databinding.FragmentMultiCameraBinding
 
-class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCameraBinding>(), AddButton {
+class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCameraBinding>(),
+    MakeRadioButtons {
     override val viewModelClass = MultiCameraViewModel::class.java
     override fun bind(inflater: LayoutInflater, container: ViewGroup?) =
         FragmentMultiCameraBinding.inflate(inflater, container, false)
@@ -34,24 +34,30 @@ class MultiCameraFragment : BaseFragment<MultiCameraViewModel, FragmentMultiCame
         viewModel.init(savedInstanceState == null)
     }
 
-    override fun clear() {
+    override fun makeButtons(names: List<String>, selection: Pair<Int, Int>) {
         binding.physicalButtonGroupOne.removeAllViews()
         binding.physicalButtonGroupTwo.removeAllViews()
-    }
 
-    override fun addButton(name: String) {
-        val buttonOne = RadioButton(requireContext())
-        buttonOne.text = name
-        buttonOne.setOnClickListener {
-            viewModel.choose(0, name)
-        }
-        val buttonTwo = RadioButton(requireContext())
-        buttonTwo.text = name
-        buttonTwo.setOnClickListener {
-            viewModel.choose(1, name)
-        }
+        names.forEachIndexed { i, name ->
+            val buttonOne = RadioButton(requireContext())
+            buttonOne.isChecked = selection.first == i
+            buttonOne.text = name
+            buttonOne.setOnClickListener {
+                viewModel.choose(0, i)
+            }
+            val buttonTwo = RadioButton(requireContext())
+            buttonTwo.isChecked = selection.second == i
+            buttonTwo.text = name
+            buttonTwo.setOnClickListener {
+                viewModel.choose(1, i)
+            }
 
-        binding.physicalButtonGroupOne.addView(buttonOne)
-        binding.physicalButtonGroupTwo.addView(buttonTwo)
+            binding.physicalButtonGroupOne.addView(buttonOne)
+            binding.physicalButtonGroupTwo.addView(buttonTwo)
+        }
     }
+}
+
+interface MakeRadioButtons {
+    fun makeButtons(names: List<String>, selection: Pair<Int, Int>)
 }

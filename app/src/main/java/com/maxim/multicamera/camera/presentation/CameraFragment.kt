@@ -115,6 +115,8 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
         val configOne = OutputConfiguration(surfaceOne)
         configOne.setPhysicalCameraId(viewModel.physicalsIds().first)
 
+        Log.d("MyLog", "startPhysicalAfterTextureAvailable ids: ${viewModel.physicalsIds()}")
+
         val surfaceTwo = Surface(binding.textureViewTwo.surfaceTexture)
         val configTwo = OutputConfiguration(surfaceTwo)
         configTwo.setPhysicalCameraId(viewModel.physicalsIds().second)

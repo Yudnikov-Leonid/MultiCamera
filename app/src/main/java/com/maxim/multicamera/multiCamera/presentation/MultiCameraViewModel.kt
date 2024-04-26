@@ -20,30 +20,33 @@ class MultiCameraViewModel(
     private val navigation: Navigation.Update,
     private val clearViewModel: ClearViewModel
 ) : ViewModel(), Communication.Observe<MultiCameraState>, Init, GoBack {
-    private var cameras = Pair("", "")
+    private var selection = Pair(-1, -1)
 
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
             communication.update(
-                MultiCameraState.Initial(
+                MultiCameraState.Base(
                     cameraManagerWrapper.physicalCameras(
                         shareCameraId.readLogical()
-                    )
+                    ), selection, false
                 )
             )
         }
     }
 
     fun start() {
-        shareCameraId.savePhysical(cameras)
+        val cameras = cameraManagerWrapper.physicalCameras(shareCameraId.readLogical())
+        shareCameraId.savePhysical(Pair(cameras[selection.first], cameras[selection.second]))
         navigation.update(CameraScreen)
     }
 
-    fun choose(pos: Int, name: String) {
-        cameras = if (pos == 0) Pair(name, cameras.second) else Pair(cameras.first, name)
+    fun choose(pos: Int, index: Int) {
+        selection = if (pos == 0) Pair(index, selection.second) else Pair(selection.first, index)
         communication.update(
             MultiCameraState.Base(
-                cameras.first.isNotEmpty() && cameras.second.isNotEmpty() && cameras.first != cameras.second
+                cameraManagerWrapper.physicalCameras(shareCameraId.readLogical()),
+                selection,
+                selection.first != -1 && selection.second != -1 && selection.first != selection.second
             )
         )
     }
