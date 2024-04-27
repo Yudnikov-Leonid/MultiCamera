@@ -9,7 +9,6 @@ import com.multicamera.multicamera.core.presentation.Communication
 import com.multicamera.multicamera.core.presentation.Init
 import com.multicamera.multicamera.core.presentation.Navigation
 import com.multicamera.multicamera.core.presentation.SaveAndRestore
-import com.multicamera.multicamera.core.presentation.SerializableList
 import com.multicamera.multicamera.multiCamera.data.ShareCameraId
 import com.multicamera.multicamera.multiCamera.presentation.MultiCameraScreen
 
@@ -54,14 +53,14 @@ class ChooseCameraViewModel(
 
     override fun save(bundleWrapper: BundleWrapper.Save) {
         communication.save(KEY, bundleWrapper)
-        bundleWrapper.save(NAMES_KEY, SerializableList(cameraNames))
+        bundleWrapper.save(NAMES_KEY, cameraNames.toTypedArray())
         shareCameraId.save(bundleWrapper)
     }
 
     override fun restore(bundleWrapper: BundleWrapper.Restore) {
         communication.restore(KEY, bundleWrapper)
         cameraNames.clear()
-        cameraNames.addAll(bundleWrapper.restore<SerializableList<String>>(NAMES_KEY)!!.list)
+        cameraNames.addAll(bundleWrapper.restore<Array<String>>(NAMES_KEY)!!.toList())
         shareCameraId.restore(bundleWrapper)
     }
 
