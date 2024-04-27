@@ -56,5 +56,4 @@ interface Communication {
     abstract class Single<T> : Abstract<T>(SingleLiveEvent())
 
     abstract class RegularWithDeath<T : Serializable> : AbstractDeath<T>()
-    abstract class SingleWithDeath<T : Serializable> : AbstractDeath<T>(SingleLiveEvent())
 }

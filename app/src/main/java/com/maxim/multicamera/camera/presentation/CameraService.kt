@@ -7,7 +7,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
-import android.util.Log
 import android.util.Size
 import com.maxim.multicamera.camera.data.ComparableByArea
 import java.util.Collections
@@ -36,25 +35,19 @@ interface CameraService {
         private val cameraCallback = object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 cameraDevice = camera
-                //manageCamera.createCameraPreviewSession(cameraDevice!!)
-                Log.d("MyLog", "camera opened: $cameraId")
                 manageCamera.startPhysicalCameras(cameraDevice!!)
             }
 
             override fun onDisconnected(camera: CameraDevice) {
-                Log.d("MyLog", "onDisconnected")
                 cameraDevice!!.close()
                 cameraDevice = null
             }
 
-            override fun onError(camera: CameraDevice, error: Int) {
-                Log.d("MyLog", "error: $error")
-            }
+            override fun onError(camera: CameraDevice, error: Int) = Unit
         }
 
         @SuppressLint("MissingPermission")
         override fun openCamera(handler: Handler) {
-            Log.d("MyLog", "openCamera")
             cameraManager.openCamera(cameraId, cameraCallback, handler)
         }
 

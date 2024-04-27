@@ -10,7 +10,6 @@ import android.hardware.camera2.params.SessionConfiguration
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Surface
 import android.view.TextureView.SurfaceTextureListener
@@ -56,7 +55,6 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
     }
 
     override fun onPause() {
-        Log.d("MyLog", "onPause")
         super.onPause()
         camera.closeCamera()
         stopBackgroundThread()
@@ -115,8 +113,6 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
         val configOne = OutputConfiguration(surfaceOne)
         configOne.setPhysicalCameraId(viewModel.physicalsIds().first)
 
-        Log.d("MyLog", "startPhysicalAfterTextureAvailable ids: ${viewModel.physicalsIds()}")
-
         val surfaceTwo = Surface(binding.textureViewTwo.surfaceTexture)
         val configTwo = OutputConfiguration(surfaceTwo)
         configTwo.setPhysicalCameraId(viewModel.physicalsIds().second)
@@ -126,7 +122,6 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
             requireActivity().mainExecutor,
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
-                    Log.d("MyLog", "onConfigured")
                     val captureRequest =
                         session.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
 
@@ -137,9 +132,7 @@ class CameraFragment : BaseFragment<CameraViewModel, FragmentCameraBinding>(), C
                     session.setRepeatingRequest(captureRequest.build(), null, null)
                 }
 
-                override fun onConfigureFailed(session: CameraCaptureSession) {
-                    Log.d("MyLog", "onConfigureFailed")
-                }
+                override fun onConfigureFailed(session: CameraCaptureSession) = Unit
             })
 
         cameraDevice.createCaptureSession(sessionConfig)

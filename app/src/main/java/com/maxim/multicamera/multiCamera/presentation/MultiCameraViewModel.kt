@@ -1,6 +1,5 @@
 package com.maxim.multicamera.multiCamera.presentation
 
-import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -24,10 +23,6 @@ class MultiCameraViewModel(
     private val clearViewModel: ClearViewModel
 ) : ViewModel(), Communication.Observe<MultiCameraState>, Init, GoBack, SaveAndRestore {
     private var selection = Pair(-1, -1)
-
-    init {
-        Log.d("MyLog", "vm: $this")
-    }
 
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
@@ -65,7 +60,6 @@ class MultiCameraViewModel(
     override fun goBack() {
         navigation.update(Screen.Pop)
         clearViewModel.clear(MultiCameraViewModel::class.java)
-        Log.d("MyLog", "goBack")
     }
 
     override fun save(bundleWrapper: BundleWrapper.Save) {

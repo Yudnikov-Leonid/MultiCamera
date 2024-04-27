@@ -1,6 +1,5 @@
 package com.maxim.multicamera.core.presentation
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
@@ -25,7 +24,6 @@ interface Screen {
 
     object Pop : Screen {
         override fun show(fragmentManager: FragmentManager, containerId: Int) {
-            Log.d("MyLog", "count: ${fragmentManager.backStackEntryCount}")
             fragmentManager.popBackStack()
         }
     }
