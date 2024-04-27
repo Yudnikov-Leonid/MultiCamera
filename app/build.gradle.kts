@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.maxim.multicamera"
+    namespace = "com.multicamera.multicamera"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.maxim.multicamera"
+        applicationId = "com.multicamera.multicamera"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
