@@ -23,6 +23,7 @@ class ChooseCameraViewModel(
 
     override fun init(isFirstRun: Boolean) {
         if (isFirstRun) {
+            cameraNames.clear()
             cameraNames.addAll(cameraManagerWrapper.cameras().map {
                 "$it (${if (cameraManagerWrapper.isFront(it)) "FRONT" else "BACK"})"
             })
@@ -31,9 +32,15 @@ class ChooseCameraViewModel(
     }
 
     fun choose(index: Int) {
-        val physicalCameras = cameraManagerWrapper.physicalCameras(cameraManagerWrapper.cameras()[index])
+        val physicalCameras =
+            cameraManagerWrapper.physicalCameras(cameraManagerWrapper.cameras()[index])
         if (physicalCameras.isEmpty())
-            communication.update(ChooseCameraState.Base(cameraNames, "Camera does not have supported physical cameras"))
+            communication.update(
+                ChooseCameraState.Base(
+                    cameraNames,
+                    "Camera ${cameraManagerWrapper.cameras()[index]} does not have supported physical cameras"
+                )
+            )
         else {
             communication.update(ChooseCameraState.Initial(cameraNames))
             shareCameraId.saveLogical(cameraManagerWrapper.cameras()[index])
