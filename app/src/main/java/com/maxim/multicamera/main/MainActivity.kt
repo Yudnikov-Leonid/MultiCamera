@@ -1,6 +1,9 @@
 package com.maxim.multicamera.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import com.maxim.multicamera.R
@@ -27,23 +30,28 @@ class MainActivity : AppCompatActivity(), ProvideViewModel {
     override fun onResume() {
         super.onResume()
 
-//        val permissionList = mutableListOf<String>()
-//        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//            permissionList.add(Manifest.permission.CAMERA)
-//        }
-//        if (ContextCompat.checkSelfPermission(
-//                applicationContext,
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//        }
-//
-//        if (permissionList.isNotEmpty()) {
-//            requestPermissions(
-//                permissionList.toTypedArray(), 1
-//            )
-//        }
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                arrayOf(Manifest.permission.CAMERA), 1
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1) {
+            grantResults.forEach {
+                if (it != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Please grant all permissions", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
+        }
     }
 
     override fun <T : ViewModel> viewModel(clasz: Class<T>): T {
