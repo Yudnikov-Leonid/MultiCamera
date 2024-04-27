@@ -23,7 +23,7 @@ interface Screen {
         }
     }
 
-    object Pop: Screen {
+    object Pop : Screen {
         override fun show(fragmentManager: FragmentManager, containerId: Int) {
             Log.d("MyLog", "count: ${fragmentManager.backStackEntryCount}")
             fragmentManager.popBackStack()
